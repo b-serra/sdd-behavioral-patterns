@@ -61,34 +61,53 @@ class Command(ABC):
 class AddTicketCommand(Command):
     def __init__(self, cart: Cart, category: str, qty: int, unit_price: float):
         # TODO: store cart, category, qty and unit_price for later use.
-        pass
+        self.cart = cart
+        self.category = category
+        self.qty = qty
+        self.unit_price = unit_price
+        if not cart or not category or not qty or not unit_price:
+            return None
+        
+        return cart, category, qty, unit_price
 
     def execute(self) -> None:
         # TODO: add `qty` tickets of `category` at `unit_price` to the cart.
-        pass
+        self.cart.add_item(self.category, self.qty, self.unit_price)
 
     def undo(self) -> None:
-        # TODO: remove exactly the tickets this command added.
-        pass
+        self.cart.remove_item(self.category, self.qty, self.unit_price)
 
 
 class RemoveTicketCommand(Command):
     def __init__(self, cart: Cart, category: str, qty: int):
         # TODO: store cart, category and qty. You'll also need somewhere to
         # remember how many tickets were *actually* removed, and at what
-        # price, once execute() runs.
-        pass
+        # price, once execute() runs
+        self.cart = cart
+        self.category = category
+        self.qty = qty
+        self.removed_qty = 0
+        self.unit_price = None
 
     def execute(self) -> None:
         # TODO: remove up to `qty` tickets of `category` from the cart
         # (cart.remove_item returns how many were actually removed), and
         # remember that count plus the unit price so undo() can restore them.
-        pass
+        self.removed_qty = 0
+        self.unit_price = None
+        item = self.cart.items().get(self.category)
+        if item is None:
+            return None
+
+        _, self.unit_price = item
+        self.removed_qty = self.cart.remove_item(self.category, self.qty)
 
     def undo(self) -> None:
         # TODO: add back exactly the quantity that was actually removed, at
         # the price it was removed at. Do nothing if nothing was removed.
-        pass
+        if self.removed_qty and self.unit_price is not None:
+            self.cart.add_item(self.category, self.removed_qty, self.unit_price)
+            self.removed_qty = 0
 
 
 class SetPricingStrategyCommand(Command):
