@@ -18,6 +18,7 @@ class EmailWaitlistNotifier(WaitlistObserver):
         self.sent = []
 
     def notify(self, show_title: str, available_seats: int) -> None:
+        self.sent.append(f"Email to {self.email}] '{show_title}' has {available_seats} seat(s) available again")
         # TODO: append a message to self.sent, e.g.
         # "[Email to <email>] '<show_title>' has <available_seats> seat(s) available again"
         pass
