@@ -1,7 +1,6 @@
 
 from abc import ABC, abstractmethod
 
-
 class WaitlistObserver(ABC):
     """
     Observer interface: notified when a sold-out show has seats again.
@@ -20,7 +19,7 @@ class EmailWaitlistNotifier(WaitlistObserver):
     def notify(self, show_title: str, available_seats: int) -> None:
         # TODO: append a message to self.sent, e.g.
         # "[Email to <email>] '<show_title>' has <available_seats> seat(s) available again"
-        pass
+        self.sent.append(f"[Email to {self.email}] '{show_title}' has {available_seats} seat(s) available again")
 
 
 class SMSWaitlistNotifier(WaitlistObserver):
@@ -30,7 +29,7 @@ class SMSWaitlistNotifier(WaitlistObserver):
 
     def notify(self, show_title: str, available_seats: int) -> None:
         # TODO: same idea as EmailWaitlistNotifier, but labeled "SMS to <phone>".
-        pass
+        self.sent.append(f"[SMS to {self.phone}] '{show_title}' has {available_seats} seat(s) available again")
 
 
 class Show:
@@ -45,11 +44,11 @@ class Show:
 
     def join_waitlist(self, observer: WaitlistObserver) -> None:
         # TODO: subscribe `observer`.
-        pass
+        self._observers.append(observer)
 
     def leave_waitlist(self, observer: WaitlistObserver) -> None:
         # TODO: unsubscribe `observer`.
-        pass
+        self._observers.remove(observer)
 
     def sell_seats(self, count: int) -> None:
         if count <= 0:
@@ -64,4 +63,12 @@ class Show:
         # *before* adding `count` to available_seats. Then, only if it was
         # sold out, call notify(self.title, self.available_seats) on every
         # subscribed observer.
-        pass
+        if count <= 0:
+            raise ValueError("count must be positive")
+
+        if self.available_seats == 0:
+            self.available_seats += count
+            for observer in self._observers:
+                observer.notify(self.title, self.available_seats)
+        else:
+            self.available_seats += count
