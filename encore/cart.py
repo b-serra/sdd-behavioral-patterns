@@ -1,6 +1,5 @@
 
 from abc import ABC, abstractmethod
-from re import S
 from typing import Dict, Tuple
 
 from .pricing import PricingStrategy, StandardPricing
@@ -97,6 +96,8 @@ class RemoveTicketCommand(Command):
     def undo(self) -> None:
         # TODO: add back exactly the quantity that was actually removed, at
         # the price it was removed at. Do nothing if nothing was removed.
+        if self.removed_qty == 0:
+            return
         self.cart.add_item(self.category, self.removed_qty, self.removed_unit_price)
 
 
@@ -110,8 +111,7 @@ class SetPricingStrategyCommand(Command):
 
     def execute(self) -> None:
         # TODO: swap the cart's pricing strategy, remembering the previous one.
-        self.previous_strategy = self.cart._pricing_strategy
-        self.cart.set_pricing_strategy(self.strategy)
+        self.previous_strategy = self.cart.set_pricing_strategy(self.strategy)
 
     def undo(self) -> None:
         # TODO: restore the previous pricing strategy.
