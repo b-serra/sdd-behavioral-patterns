@@ -20,7 +20,8 @@ class EmailWaitlistNotifier(WaitlistObserver):
     def notify(self, show_title: str, available_seats: int) -> None:
         # TODO: append a message to self.sent, e.g.
         # "[Email to <email>] '<show_title>' has <available_seats> seat(s) available again"
-        pass
+        self.sent.append(f"[Email to {self.email}] '{show_title}' has {available_seats} seat(s) available again")
+
 
 
 class SMSWaitlistNotifier(WaitlistObserver):
@@ -30,8 +31,7 @@ class SMSWaitlistNotifier(WaitlistObserver):
 
     def notify(self, show_title: str, available_seats: int) -> None:
         # TODO: same idea as EmailWaitlistNotifier, but labeled "SMS to <phone>".
-        pass
-
+        self.sent.append(f"[SMS to {self.phone}] '{show_title}' has {available_seats} seat(s) available again")
 
 class Show:
     """
