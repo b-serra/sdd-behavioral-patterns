@@ -61,34 +61,38 @@ class Command(ABC):
 class AddTicketCommand(Command):
     def __init__(self, cart: Cart, category: str, qty: int, unit_price: float):
         # TODO: store cart, category, qty and unit_price for later use.
-        pass
+        self.cart = cart 
+        self.category = category
+        self.qty = qty
+        self.unit_price = unit_price
+
 
     def execute(self) -> None:
-        # TODO: add `qty` tickets of `category` at `unit_price` to the cart.
-        pass
+        self.cart.add_items(self.cart, self.category, self.qty, self.unit_price)
 
     def undo(self) -> None:
-        # TODO: remove exactly the tickets this command added.
-        pass
+        self.cart.remove_items(self.cart, self.category, self.qty, self.unit_price)
+        
 
 
 class RemoveTicketCommand(Command):
     def __init__(self, cart: Cart, category: str, qty: int):
-        # TODO: store cart, category and qty. You'll also need somewhere to
-        # remember how many tickets were *actually* removed, and at what
-        # price, once execute() runs.
-        pass
+        self.cart = cart
+        self.category = category
+        self.qty = qty
 
     def execute(self) -> None:
-        # TODO: remove up to `qty` tickets of `category` from the cart
-        # (cart.remove_item returns how many were actually removed), and
-        # remember that count plus the unit price so undo() can restore them.
-        pass
+        items = self.cart.items()
+
+        if self.category in items:
+            self.unit_price = items[self.category][1]
+
+        self.remove_qty = self.cart.remove_items(self.category, self.qty)
 
     def undo(self) -> None:
-        # TODO: add back exactly the quantity that was actually removed, at
-        # the price it was removed at. Do nothing if nothing was removed.
-        pass
+        if self.remove_qty > 0:
+            self.cart.add_items(self.category, self.remove_qty, self.unit_price)
+        
 
 
 class SetPricingStrategyCommand(Command):
